@@ -26,6 +26,9 @@ int main(int argc, char** argv)
 	cout << str3 << endl;
 	cout << obj["parsed"][3].getValue<float>() << endl;
 	cout << obj["parsed"] << endl;
+	cout << obj.hasKey("parsed") << endl;
+	cout << obj["parsed"].size() << endl;
+	Json b = obj["parsed"].at(6) ;
 	system("pause");
 	return EXIT_SUCCESS;
 }

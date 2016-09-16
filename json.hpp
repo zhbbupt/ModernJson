@@ -312,7 +312,7 @@ namespace conf
 				return this->_json_value.Dict->operator[](key);
 			}
 
-			Json& at(const string &key)
+			Json& at(const std::string &key)
 			{
 				if (this->_json_type == JSON_TYPE::JSON_DICT)
 				{
@@ -322,12 +322,12 @@ namespace conf
 					}
 					else
 					{
-						cerr << "Json has no key :" + key << endl;
+						std::cerr << "Json has no key :" + key << std::endl;
 					}
 				}
 				else
 				{
-					cerr << "Json is not a dict" << endl;
+					std::cerr << "Json is not a dict" << std::endl;
 				}
 				return std::move(Json());
 			}
@@ -342,31 +342,44 @@ namespace conf
 					}
 					else
 					{
-						cerr << "Json has no index :" + index << endl;
+						std::cerr << "Json has no index : " + std::to_string(index) << std::endl;
 					}
 				}
 				else
 				{
-					cerr << "Json is not a list" << endl;
+					std::cerr << "Json is not a list" << std::endl;
 				}
 				return std::move(Json());
 			}
 
-			int length() const 
+			int size() const
 			{
 				if (this->_json_type == JSON_TYPE::JSON_LIST)
+				{
 					return this->_json_value.List->size();
+				}
+				else if (this->_json_type == JSON_TYPE::JSON_DICT)
+				{
+					return this->_json_value.Dict->size();
+				}
 				else
+				{
 					return -1;
+				}
 			}
 
-			bool hasKey(const string &key) const 
+			bool hasKey(const std::string &key) const 
 			{
 				if (this->_json_type == JSON_TYPE::JSON_DICT)
 				{
 					return (this->_json_value.Dict->find(key) != this->_json_value.Dict->end());
 				}
 				return false;
+			}
+
+			Json& begin() const
+			{
+
 			}
 
 			template <typename T>
@@ -560,6 +573,7 @@ namespace conf
 				ret.setType(type);
 				return ret;
 			}
+
 			static Json JsonList()
 			{
 				return std::move(Json::Make(JSON_TYPE::JSON_LIST));
@@ -578,35 +592,9 @@ namespace conf
 				return std::move(Json::Make(JSON_TYPE::JSON_DICT));
 			}
 
-		private:
-			JsonValue  _json_value;
-			JSON_TYPE  _json_type;
-
-			std::string _json_escape(const std::string &str) const
-			{
-				std::string output;
-				for (unsigned i = 0; i < str.length(); i++)
-				{
-					switch (str[i]) {
-					case '\"': output += "\\\""; break;
-					case '\\': output += "\\\\"; break;
-					case '\b': output += "\\b";  break;
-					case '\f': output += "\\f";  break;
-					case '\n': output += "\\n";  break;
-					case '\r': output += "\\r";  break;
-					case '\t': output += "\\t";  break;
-					default: output += str[i]; break;
-					}
-				}
-				return std::move(output);
-			}
-
-
-		public:
 			static Json loadJson(const std::string &str)
 			{
 				int32_t offset = 0;
-				//return NULL;
 				return std::move(Json::_json_parser->parse_next(str, offset));
 			}
 
@@ -891,6 +879,27 @@ namespace conf
 
 			static JsonParser* _json_parser;
 
+			JsonValue  _json_value;
+			JSON_TYPE  _json_type;
+
+			std::string _json_escape(const std::string &str) const
+			{
+				std::string output;
+				for (unsigned i = 0; i < str.length(); i++)
+				{
+					switch (str[i]) {
+					case '\"': output += "\\\""; break;
+					case '\\': output += "\\\\"; break;
+					case '\b': output += "\\b";  break;
+					case '\f': output += "\\f";  break;
+					case '\n': output += "\\n";  break;
+					case '\r': output += "\\r";  break;
+					case '\t': output += "\\t";  break;
+					default: output += str[i]; break;
+					}
+				}
+				return std::move(output);
+			}
 		};
 		
 		Json::JsonParser* Json::_json_parser = new Json::JsonParser();

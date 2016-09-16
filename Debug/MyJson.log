@@ -1,4 +1,4 @@
-﻿Build started 2016/9/16 20:32:24.
+﻿Build started 2016/9/16 20:58:40.
      1>Project "D:\mySoure\VSProjects\test\MyJson\MyJson\MyJson.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\bin\CL.exe /c /ZI /W3 /WX- /sdl /Od /Oy- /D WIN32 /D _DEBUG /D _CONSOLE /D _LIB /D _UNICODE /D UNICODE /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Debug\\" /Fd"Debug\vc120.pdb" /Gd /TP /analyze- /errorReport:prompt main.cpp
@@ -9,8 +9,9 @@
          
          main.cpp
      1>d:\mysoure\vsprojects\test\myjson\myjson\json.hpp(302): warning C4018: '>=' : signed/unsigned mismatch
+     1>d:\mysoure\vsprojects\test\myjson\myjson\json.hpp(339): warning C4018: '>' : signed/unsigned mismatch
      1>d:\mysoure\vsprojects\test\myjson\myjson\json.hpp(190): warning C4800: 'long' : forcing value to bool 'true' or 'false' (performance warning)
-                 d:\mysoure\vsprojects\test\myjson\myjson\json.hpp(792) : see reference to function template instantiation 'bool conf::json::Json::getValue<bool>(void)' being compiled
+                 d:\mysoure\vsprojects\test\myjson\myjson\json.hpp(824) : see reference to function template instantiation 'bool conf::json::Json::getValue<bool>(void)' being compiled
      1>d:\mysoure\vsprojects\test\myjson\myjson\json.hpp(194): warning C4800: 'double' : forcing value to bool 'true' or 'false' (performance warning)
      1>d:\mysoure\vsprojects\test\myjson\myjson\json.hpp(234): warning C4244: 'return' : conversion from 'double' to 'float', possible loss of data
                  d:\mysoure\vsprojects\test\myjson\myjson\main.cpp(27) : see reference to function template instantiation 'float conf::json::Json::getValue<float>(void)' being compiled
@@ -25,4 +26,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:01.23
+Time Elapsed 00:00:01.26
