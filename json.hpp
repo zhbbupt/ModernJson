@@ -64,7 +64,7 @@ namespace conf
 				other._json_value.String = nullptr;
 			}
 
-			Json& operator=(Json&& other) 
+			Json& operator=(Json&& other)
 			{
 				this->_json_value = other._json_value;
 				this->_json_type = other._json_type;
@@ -185,6 +185,14 @@ namespace conf
 				{
 					return this->_json_value.Bool;
 				}
+				case JSON_TYPE::JSON_INT:
+				{
+					return static_cast<bool>(this->_json_value.Int);
+				}
+				case JSON_TYPE::JSON_FLOAT:
+				{
+					return static_cast<bool>(this->_json_value.Float);
+				}
 				default:
 				{
 					return false;
@@ -201,6 +209,14 @@ namespace conf
 				{
 					return this->_json_value.Int;
 				}
+				case JSON_TYPE::JSON_FLOAT:
+				{
+					return static_cast<int>(this->_json_value.Float);
+				}
+				case JSON_TYPE::JSON_BOOL:
+				{
+					return static_cast<int>(this->_json_value.Bool);
+				}
 				default:
 				{
 					return 0;
@@ -216,6 +232,14 @@ namespace conf
 				case JSON_TYPE::JSON_FLOAT:
 				{
 					return this->_json_value.Float;
+				}
+				case JSON_TYPE::JSON_INT:
+				{
+					return static_cast<float>(this->_json_value.Int);
+				}
+				case JSON_TYPE::JSON_BOOL:
+				{
+					return static_cast<float>(this->_json_value.Bool);
 				}
 				default:
 				{
@@ -272,7 +296,7 @@ namespace conf
 				return *this;
 			}
 
-			Json& operator[](int32_t index) 
+			Json& operator[](const int32_t& index) 
 			{
 				this->setType(JSON_TYPE::JSON_LIST);
 				if (index >= this->_json_value.List->size())
@@ -286,6 +310,63 @@ namespace conf
 			{
 				this->setType(JSON_TYPE::JSON_DICT); 
 				return this->_json_value.Dict->operator[](key);
+			}
+
+			Json& at(const string &key)
+			{
+				if (this->_json_type == JSON_TYPE::JSON_DICT)
+				{
+					if (this->_json_value.Dict->find(key) != this->_json_value.Dict->end())
+					{
+						return this->_json_value.Dict->operator[](key);
+					}
+					else
+					{
+						cerr << "Json has no key :" + key << endl;
+					}
+				}
+				else
+				{
+					cerr << "Json is not a dict" << endl;
+				}
+				return std::move(Json());
+			}
+
+			Json& at(int32_t index) 
+			{
+				if (this->_json_type == JSON_TYPE::JSON_LIST)
+				{
+					if (this->_json_value.List->size() > index)
+					{
+						return this->_json_value.List->operator[](index);
+					}
+					else
+					{
+						cerr << "Json has no index :" + index << endl;
+					}
+				}
+				else
+				{
+					cerr << "Json is not a list" << endl;
+				}
+				return std::move(Json());
+			}
+
+			int length() const 
+			{
+				if (this->_json_type == JSON_TYPE::JSON_LIST)
+					return this->_json_value.List->size();
+				else
+					return -1;
+			}
+
+			bool hasKey(const string &key) const 
+			{
+				if (this->_json_type == JSON_TYPE::JSON_DICT)
+				{
+					return (this->_json_value.Dict->find(key) != this->_json_value.Dict->end());
+				}
+				return false;
 			}
 
 			template <typename T>
@@ -504,7 +585,7 @@ namespace conf
 			std::string _json_escape(const std::string &str) const
 			{
 				std::string output;
-				for (int i = 0; i < str.length(); i++)
+				for (unsigned i = 0; i < str.length(); i++)
 				{
 					switch (str[i]) {
 					case '\"': output += "\\\""; break;
@@ -813,6 +894,11 @@ namespace conf
 		};
 		
 		Json::JsonParser* Json::_json_parser = new Json::JsonParser();
+		std::ostream& operator<<(std::ostream &os, const Json &json)
+		{
+			os << json.dump();
+			return os;
+		}
 	}
 }
 

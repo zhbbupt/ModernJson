@@ -9,6 +9,8 @@ using conf::json::Json;
 int main(int argc, char** argv)
 {
 	Json obj;
+	Json a = Json("parsed");
+	obj = a;
 	obj["parsed"] = Json::loadJson(" [{ \"Key\" : \"Value\" , \"Key3\":false },false,[1,3,1.5,3.1]]");
 	string str = obj.dump();
 	cout << str << endl;
@@ -22,6 +24,8 @@ int main(int argc, char** argv)
 	obj["parsed"][4] = Json::JsonList("a",3,true);
 	str3 = obj.dump();
 	cout << str3 << endl;
+	cout << obj["parsed"][3].getValue<float>() << endl;
+	cout << obj["parsed"] << endl;
 	system("pause");
 	return EXIT_SUCCESS;
 }
