@@ -56,6 +56,79 @@ namespace conf
 				default:;
 				}
 			}
+			Json(Json&& other): _json_value(other._json_value), _json_type(other._json_type)
+			{
+				other._json_type = JSON_TYPE::JSON_NULL;
+				other._json_value.Dict = nullptr;
+				other._json_value.List = nullptr;
+				other._json_value.String = nullptr;
+			}
+
+			Json& operator=(Json&& other) 
+			{
+				this->_json_value = other._json_value;
+				this->_json_type = other._json_type;
+				other._json_value.Dict = nullptr;
+				other._json_value.List = nullptr;
+				other._json_value.String = nullptr;
+				other._json_type = JSON_TYPE::JSON_NULL;
+				return *this;
+			}
+
+			Json(const Json &other) 
+			{
+				switch (other._json_type)
+				{
+				case JSON_TYPE::JSON_DICT:
+				{
+					this->_json_value.Dict = new std::unordered_map<std::string, Json>(other._json_value.Dict->begin(), other._json_value.Dict->end());
+					break;
+				}
+				case JSON_TYPE::JSON_LIST:
+				{
+					this->_json_value.List = new std::deque<Json>(other._json_value.List->begin(), other._json_value.List->end());
+					break;
+				}
+				case JSON_TYPE::JSON_STRING:
+				{
+					this->_json_value.String = new std::string(*other._json_value.String);
+					break;
+				}
+				default:
+				{
+					this->_json_value = other._json_value;
+				}
+				}
+				this->_json_type = other._json_type;
+			}
+
+			Json& operator=(const Json &other) 
+			{
+				switch (other._json_type) 
+				{
+				case JSON_TYPE::JSON_DICT:
+				{
+					this->_json_value.Dict = new std::unordered_map<std::string, Json>(other._json_value.Dict->begin(), other._json_value.Dict->end());
+					break;
+				}
+				case JSON_TYPE::JSON_LIST:
+				{
+					this->_json_value.List = new std::deque<Json>(other._json_value.List->begin(), other._json_value.List->end());
+					break;
+				}
+				case JSON_TYPE::JSON_STRING:
+				{
+					this->_json_value.String = new std::string(*other._json_value.String);
+					break;
+				}
+				default:
+				{
+					this->_json_value = other._json_value;
+				}
+				}
+				this->_json_type = other._json_type;
+				return *this;
+			}
 			template<typename T>
 			Json(T b, typename std::enable_if<std::is_same<T, bool>::value>::type* = 0) : _json_value(b), _json_type(JSON_TYPE::JSON_BOOL){}
 
@@ -101,6 +174,70 @@ namespace conf
 			JSON_TYPE getType()
 			{
 				return this->_json_type;
+			}
+
+			template <typename T>
+			typename std::enable_if<std::is_same<T, bool>::value, bool>::type getValue()
+			{
+				switch (this->_json_type)
+				{
+				case JSON_TYPE::JSON_BOOL:
+				{
+					return this->_json_value.Bool;
+				}
+				default:
+				{
+					return false;
+				}
+				}
+			}
+
+			template <typename T>
+			typename std::enable_if<std::is_integral<T>::value && !std::is_same<T, bool>::value, int32_t>::type getValue()
+			{
+				switch (this->_json_type)
+				{
+				case JSON_TYPE::JSON_INT:
+				{
+					return this->_json_value.Int;
+				}
+				default:
+				{
+					return 0;
+				}
+				}
+			}
+
+			template <typename T>
+			typename std::enable_if<std::is_floating_point<T>::value && !std::is_same<T, bool>::value, float>::type getValue()
+			{
+				switch (this->_json_type)
+				{
+				case JSON_TYPE::JSON_FLOAT:
+				{
+					return this->_json_value.Float;
+				}
+				default:
+				{
+					return 0;
+				}
+				}
+			}
+
+			template <typename T>
+			typename std::enable_if<std::is_convertible<T, std::string>::value, std::string>::type getValue()
+			{
+				switch (this->_json_type)
+				{
+				case JSON_TYPE::JSON_STRING:
+				{
+					return *(this->_json_value.String);
+				}
+				default:
+				{
+					return "";
+				}
+				}
 			}
 
 			template <typename T>
@@ -151,25 +288,188 @@ namespace conf
 				return this->_json_value.Dict->operator[](key);
 			}
 
-			bool ToBool() 
+			template <typename T>
+			bool append(T arg) 
 			{
-				if (this->_json_type == JSON_TYPE::JSON_BOOL)
-				{
-					return this->_json_value.Bool;
-				}
-				return false;
+				this->setType(JSON_TYPE::JSON_LIST);
+				this->_json_value.List->emplace_back(arg);
+				return true;
 			}
 
-			std::string ToString()  
+			template <typename T, typename... U>
+			bool append(T arg, U... args) 
 			{
-				if(this->_json_type == JSON_TYPE::JSON_STRING)
-				{
-					return std::move(this->_json_escape(*(this->_json_value.String)));
-				}
-				return std::string("");
+				bool OK = false;
+				OK = append(arg);
+				OK = append(args...);
+				return OK;
 			}
 
+			std::string ToString() const
+			{
+				switch (this->_json_type)
+				{
+				case JSON_TYPE::JSON_NULL:
+				{
+					return "null";
+				}
+				case JSON_TYPE::JSON_FLOAT:
+				{
+					std::string str = std::to_string(this->_json_value.Float);
+					str = str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+					return str;
+				}
+				case JSON_TYPE::JSON_INT:
+				{
+					return std::to_string(this->_json_value.Int);
+				}
+				case JSON_TYPE::JSON_BOOL:
+				{
+					return this->_json_value.Bool ? "true" : "false";
+				}
+				case JSON_TYPE::JSON_STRING:
+				{
+					return "\"" + this->_json_escape(*(this->_json_value.String)) + "\"";
+				}
+				case JSON_TYPE::JSON_DICT:
+				{
+					std::string s = "{";
+					bool skip = true;
+					for (auto &p : *(this->_json_value.Dict))
+					{
+						if (!skip) s += ",";
+						s += ("\"" + p.first + "\":");
 
+						s += (p.second.ToString());
+						skip = false;
+					}
+					s += "}";
+					return s;
+				}
+				case JSON_TYPE::JSON_LIST:
+				{
+					std::string s = "[";
+					bool skip = true;
+					for (auto &p : *(this->_json_value.List))
+					{
+						if (!skip)
+						{
+							s += ", ";
+						}
+						s += p.ToString();
+						skip = false;
+					}
+					s += "]";
+					return s;
+				}
+				default:
+					return "";
+				}
+				return "";
+			}
+
+			std::string dump(int depth = 0, std::string tab = "  ") const
+			{
+				std::string pad = "";
+				for (int i = 0; i < depth; ++i)
+				{
+					pad += tab;
+				}
+
+				switch (this->_json_type)
+				{
+				case JSON_TYPE::JSON_NULL:
+				{
+					return "null";
+				}
+				case JSON_TYPE::JSON_FLOAT:
+				{
+					std::string str = std::to_string(this->_json_value.Float);
+					str = str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+					return str;
+				}
+				case JSON_TYPE::JSON_INT:
+				{
+					return std::to_string(this->_json_value.Int);
+				}
+				case JSON_TYPE::JSON_BOOL:
+				{
+					return this->_json_value.Bool ? "true" : "false";
+				}
+				case JSON_TYPE::JSON_STRING:
+				{
+					return "\"" + this->_json_escape(*(this->_json_value.String)) + "\"";
+				}
+				case JSON_TYPE::JSON_DICT: 
+				{
+					std::string s = pad+"{\n";
+					bool skip = true;
+					for (auto &p : *(this->_json_value.Dict)) 
+					{
+						if (!skip) s += ",\n";
+						s += (tab + pad + "\"" + p.first + "\" : ");
+						if (p.second._json_type == JSON_TYPE::JSON_DICT)
+						{
+							s += "\n";
+						}
+						else if (p.second._json_type == JSON_TYPE::JSON_LIST)
+						{
+							for (auto &pl : *(p.second._json_value.List))
+							{
+								if (pl._json_type == JSON_TYPE::JSON_DICT)
+								{
+									s += "\n";
+									break;
+								}
+							}
+						}
+
+						s += (p.second.dump(depth + 1, tab));
+						skip = false;
+					}
+					s += ("\n" + pad + "}");
+					return s;
+				}
+				case JSON_TYPE::JSON_LIST:
+				{
+					std::string s = "[";
+					bool hasDict = false;
+					for (auto &p : *(this->_json_value.List))
+					{
+						if (p._json_type == JSON_TYPE::JSON_DICT)
+						{
+							s = pad + "[\n";
+							hasDict = true;
+							break;
+						}
+					}
+					
+					bool skip = true;
+					for (auto &p : *(this->_json_value.List)) 
+					{
+						if (!skip)
+						{
+							s += ", ";
+							if (hasDict == true)
+							{
+								s += ("\n" + pad + tab);
+							}
+						}
+						s += p.dump(depth + 1, tab);
+						skip = false;
+					}
+					if (hasDict == true)
+					{
+						s += ("\n" + pad);
+					}
+					s += "]";
+					return s;
+				}
+				default:
+					return "";
+				}
+				return "";
+			}
 
 		public:
 
@@ -183,6 +483,15 @@ namespace conf
 			{
 				return std::move(Json::Make(JSON_TYPE::JSON_LIST));
 			}
+
+			template <typename... T>
+			static Json JsonList(T... args) 
+			{
+				Json arr = Json::Make(JSON_TYPE::JSON_LIST);
+				arr.append(args...);
+				return std::move(arr);
+			}
+
 			static Json JsonDict()
 			{
 				return std::move(Json::Make(JSON_TYPE::JSON_DICT));
@@ -192,7 +501,7 @@ namespace conf
 			JsonValue  _json_value;
 			JSON_TYPE  _json_type;
 
-			std::string _json_escape(const std::string &str)
+			std::string _json_escape(const std::string &str) const
 			{
 				std::string output;
 				for (int i = 0; i < str.length(); i++)
@@ -258,7 +567,8 @@ namespace conf
 						}
 						this->skip_space(str, ++offset);
 						Json Value = parse_next(str, offset);
-						jsonDict[Key.ToString()] = Value;
+						std::string tmp_key = Key.getValue<std::string>();
+						jsonDict[tmp_key] = Value;
 
 						this->skip_space(str, offset);
 						if (str[offset] == ',')
@@ -328,6 +638,7 @@ namespace conf
 						{
 							switch (str[++offset])
 							{
+							//case '\"': val += '\"'; break;
 							case '\"': val += '\"'; break;
 							case '\\': val += '\\'; break;
 							case '/': val += '/'; break;
@@ -363,8 +674,7 @@ namespace conf
 						}
 					}
 					++offset;
-					Json jsonString = val;
-					return std::move(jsonString);
+					return std::move(Json(val));
 				}
 
 				Json parse_number(const std::string &str, int32_t &offset)
@@ -455,7 +765,7 @@ namespace conf
 						std::cerr << "ERROR: Bool: Expected 'true' or 'false', found '" << str.substr(offset, 5) << "'\n";
 						return std::move(Json::Make(JSON_TYPE::JSON_NULL));
 					}
-					offset += (jsonBool.ToBool() ? 4 : 5);
+					offset += (jsonBool.getValue<bool>() ? 4 : 5);
 					return std::move(jsonBool);
 				}
 
