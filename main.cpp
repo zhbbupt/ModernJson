@@ -6,6 +6,7 @@
 #include "json.hpp"
 using namespace std;
 using conf::json::Json;
+using namespace conf::json;
 int main(int argc, char** argv)
 {
 	Json obj;
@@ -29,6 +30,8 @@ int main(int argc, char** argv)
 	cout << obj.hasKey("parsed") << endl;
 	cout << obj["parsed"].size() << endl;
 	Json b = obj["parsed"].at(6) ;
+	Json c = obj["parsed"][1];
+	JsonWrapper<json_dict> tmp = c.getJsonDictWrapper();
 	system("pause");
 	return EXIT_SUCCESS;
 }

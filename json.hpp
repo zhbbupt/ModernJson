@@ -2,6 +2,7 @@
 #include <deque>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <stdint.h>
 #include <type_traits>
 #include <unordered_map>
@@ -10,8 +11,8 @@ namespace conf
 	namespace json
 	{
 		class Json;
-		typedef std::deque<Json> JsonList;
-		typedef std::unordered_map<std::string, Json> JsonDict;
+		typedef std::deque<Json> json_list;
+		typedef std::unordered_map<std::string, Json> json_dict;
 		typedef std::string JsonString;
 		enum class JSON_TYPE
 		{
@@ -25,8 +26,8 @@ namespace conf
 		};
 		union JsonValue
 		{
-			JsonList								*List;
-			JsonDict								*Dict;
+			json_list								*List;
+			json_dict								*Dict;
 			JsonString  					    	*String;
 			double									Float;
 			long									Int;
@@ -36,6 +37,20 @@ namespace conf
 			JsonValue(bool   b) : Bool(b){}
 			JsonValue(JsonString s) : String(new std::string(s)){}
 			JsonValue() : Int(0){}
+		};
+		template <typename Container>
+		class JsonWrapper
+		{
+			Container *object;
+
+		public:
+			JsonWrapper(Container *val) : object(val) {}
+			JsonWrapper(std::nullptr_t) : object(nullptr) {}
+
+			typename Container::iterator begin() { return object ? object->begin() : typename Container::iterator(); }
+			typename Container::iterator end() { return object ? object->end() : typename Container::iterator(); }
+			typename Container::const_iterator begin() const { return object ? object->begin() : typename Container::iterator(); }
+			typename Container::const_iterator end() const { return object ? object->end() : typename Container::iterator(); }
 		};
 		class Json
 		{
@@ -377,11 +392,6 @@ namespace conf
 				return false;
 			}
 
-			Json& begin() const
-			{
-
-			}
-
 			template <typename T>
 			bool append(T arg) 
 			{
@@ -563,6 +573,27 @@ namespace conf
 					return "";
 				}
 				return "";
+			}
+
+
+			
+
+			JsonWrapper<json_dict> getJsonDictWrapper()
+			{
+				if (this->_json_type == JSON_TYPE::JSON_DICT)
+				{
+					return JsonWrapper<json_dict>(this->_json_value.Dict);
+				}
+				return JsonWrapper<json_dict>(nullptr);
+			}
+
+			JsonWrapper<json_list> getJsonListWrapper()
+			{
+				if (this->_json_type == JSON_TYPE::JSON_LIST)
+				{
+					return JsonWrapper<json_list>(this->_json_value.List);
+				}
+				return JsonWrapper<json_list>(nullptr);
 			}
 
 		public:
