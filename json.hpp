@@ -41,6 +41,7 @@ namespace conf
 		template <typename Container>
 		class JsonWrapper
 		{
+		public:
 			Container *object;
 
 		public:
@@ -56,6 +57,7 @@ namespace conf
 		{
 		public:
 			Json() :_json_value(), _json_type(JSON_TYPE::JSON_NULL){}
+
 			~Json()
 			{
 				switch (this->_json_type) {
@@ -71,6 +73,7 @@ namespace conf
 				default:;
 				}
 			}
+
 			Json(Json&& other): _json_value(other._json_value), _json_type(other._json_type)
 			{
 				other._json_type = JSON_TYPE::JSON_NULL;
@@ -392,6 +395,19 @@ namespace conf
 				return false;
 			}
 
+			Json getKeys()
+			{
+				Json keyList = Json::Make(JSON_TYPE::JSON_LIST);
+				if (this->_json_type==JSON_TYPE::JSON_DICT)
+				{
+					for (auto tmp : (*this->_json_value.Dict))
+					{
+						keyList.append(tmp.first);
+					}
+				}
+				return std::move(keyList);
+			}
+
 			template <typename T>
 			bool append(T arg) 
 			{
@@ -409,7 +425,7 @@ namespace conf
 				return OK;
 			}
 
-			std::string ToString() const
+			std::string toString() const
 			{
 				switch (this->_json_type)
 				{
@@ -419,9 +435,7 @@ namespace conf
 				}
 				case JSON_TYPE::JSON_FLOAT:
 				{
-					std::string str = std::to_string(this->_json_value.Float);
-					str = str.erase(str.find_last_not_of('0') + 1, std::string::npos);
-					return str;
+					return (this->_float_to_string(this->_json_value.Float));
 				}
 				case JSON_TYPE::JSON_INT:
 				{
@@ -444,7 +458,7 @@ namespace conf
 						if (!skip) s += ",";
 						s += ("\"" + p.first + "\":");
 
-						s += (p.second.ToString());
+						s += (p.second.toString());
 						skip = false;
 					}
 					s += "}";
@@ -460,7 +474,7 @@ namespace conf
 						{
 							s += ", ";
 						}
-						s += p.ToString();
+						s += p.toString();
 						skip = false;
 					}
 					s += "]";
@@ -488,9 +502,10 @@ namespace conf
 				}
 				case JSON_TYPE::JSON_FLOAT:
 				{
-					std::string str = std::to_string(this->_json_value.Float);
+					/*std::string str = std::to_string(this->_json_value.Float);
 					str = str.erase(str.find_last_not_of('0') + 1, std::string::npos);
-					return str;
+					if (str[str.size() - 1] == '.') str += "0";*/
+					return (this->_float_to_string(this->_json_value.Float));
 				}
 				case JSON_TYPE::JSON_INT:
 				{
@@ -575,19 +590,35 @@ namespace conf
 				return "";
 			}
 
+			bool dumpToFile(const std::string& file_path,const int8_t& mode = std::ios::app) const
+			{
+				std::fstream json_file;
+				json_file.open(file_path, mode);
+				if (json_file.good())
+				{
+					std::string str = this->dump();
+					json_file.write(str.c_str(),str.size());
+					json_file.close();
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
 
-			
-
-			JsonWrapper<json_dict> getJsonDictWrapper()
+			template <typename T>
+			typename std::enable_if<std::is_same<T, json_dict>::value, JsonWrapper<json_dict>>::type getJsonWrapper()
 			{
 				if (this->_json_type == JSON_TYPE::JSON_DICT)
 				{
-					return JsonWrapper<json_dict>(this->_json_value.Dict);
+					return JsonWrapper<T>(this->_json_value.Dict);
 				}
-				return JsonWrapper<json_dict>(nullptr);
+				return JsonWrapper<T>(nullptr);
 			}
 
-			JsonWrapper<json_list> getJsonListWrapper()
+			template <typename T>
+			typename std::enable_if<std::is_same<T, json_list>::value, JsonWrapper<json_list>>::type getJsonWrapper()
 			{
 				if (this->_json_type == JSON_TYPE::JSON_LIST)
 				{
@@ -623,10 +654,24 @@ namespace conf
 				return std::move(Json::Make(JSON_TYPE::JSON_DICT));
 			}
 
-			static Json loadJson(const std::string &str)
+			static Json loadJson(const std::string& str)
 			{
 				int32_t offset = 0;
 				return std::move(Json::_json_parser->parse_next(str, offset));
+			}
+
+			static Json loadJsonFile(const std::string& file_path, const std::string& comment_segment = "//")
+			{
+				std::fstream json_file(file_path);
+				std::string line = "";
+				int32_t end_pos = -1;
+				std::string json_string = "";
+				while (std::getline(json_file, line))
+				{
+					end_pos = line.find(comment_segment);
+					json_string += line.substr(0, end_pos);
+				}
+				return std::move(Json::loadJson(json_string));
 			}
 
 		private:
@@ -930,6 +975,13 @@ namespace conf
 					}
 				}
 				return std::move(output);
+			}
+			std::string _float_to_string(double f) const
+			{
+				std::string str = std::to_string(this->_json_value.Float);
+				str = str.erase(str.find_last_not_of('0') + 1, std::string::npos);
+				if (str[str.size() - 1] == '.') str += "0";
+				return str;
 			}
 		};
 		

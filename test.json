@@ -1,0 +1,22 @@
+{ //test
+    "E":"wavs/filename.F0",
+    "array": [ true, "Two", 3, 4.000000 ], //test
+    "array2": [ false, "three" ],
+    "new": {
+        "some": {
+            "deep": {
+                "key": "Value"
+            }
+        }
+    },
+    "obj": {
+        "inner": "Inside"
+    },
+    "parsed": [
+
+        {
+            "Key": "Value"
+        },
+        false
+    ]
+}

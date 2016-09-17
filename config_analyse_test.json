@@ -1,0 +1,85 @@
+{
+	"Common parameters":
+	{
+		"SAMPLING_FREQUENCY"			: 16000,
+		"FRAME_LENGTH"					: 25.0,
+		"UNVOICED_FRAME_LENGTH"			: 20.0,
+		"F0_FRAME_LENGTH"				: 45.0,
+		"FRAME_SHIFT" 					: 5.0,
+		"LPC_ORDER" 					: 30,
+		"LPC_ORDER_SOURCE" 				: 10,
+		"WARPING_VT" 					: 0.0,
+		"WARPING_GL" 					: 0.0,
+		"HNR_CHANNELS" 					: 5,
+		"NUMBER_OF_HARMONICS" 			: 10,
+		"SEPARATE_VU_SPECTRUM" 			: false,
+		"DIFFERENTIAL_LSF" 				: false,
+    	"UNVOICED_PRE_EMPHASIS" 		: false,
+		"LOG_F0" 						: false,
+		"DATA_FORMAT" 					: "ASCII"
+	},
+	"Noise reduction":
+	{
+		"NOISE_REDUCTION_ANALYSIS" 		: false,
+		"NOISE_REDUCTION_SYNTHESIS"	 	: false,
+		"NOISE_REDUCTION_LIMIT_DB" 		: 2.0,
+		"NOISE_REDUCTION_DB" 			: 30.0
+	},
+	"General parameters":
+	{
+		"PITCH_SYNCHRONOUS_ANALYSIS"	: false,
+		"INVERT_SIGNAL"					: false,
+		"HP_FILTERING" 					: true,
+		"HPFILTER_FILENAME" 			: "../cfg/hp_16khz"
+	},
+	"Parameters for F0 estimation":
+	{
+		"F0_MIN" 						: 50.0,
+		"F0_MAX" 						: 300.0,
+		"VOICING_THRESHOLD" 			: 100.0,
+		"ZCR_THRESHOLD" 				: 120.0,
+		"USE_F0_POSTPROCESSING"			: false,
+		"RELATIVE_F0_THRESHOLD" 		: 0.005,
+		"F0_CHECK_RANGE" 				: 10,
+		"USE_EXTERNAL_F0" 				: false,
+		"EXTERNAL_F0_FILENAME" 			: "wavs/filename.F0"
+	},
+	"Parameters for extracting pulse libraries":
+	{
+		"MAX_NUMBER_OF_PULSES" 			: 10000,
+		"PULSEMAXLEN" 					: 45.0,
+		"RESAMPLED_PULSELEN" 			: 10.0,
+		"WAVEFORM_SAMPLES" 				: 10,
+		"MAX_PULSE_LEN_DIFF" 			: 0.05,
+		"EXTRACT_ONLY_UNIQUE_PULSES" 	: false,
+		"EXTRACT_ONE_PULSE_PER_FRAME" 	: false
+	},
+	"Parameters for spectral modeling":
+	{
+		"USE_IAIF" 						: true,
+		"LPC_ORDER_GL_IAIF" 			: 8,
+		"USE_MOD_IAIF" 					: false,
+		"LP_METHOD" 					: "LPC",
+		"LP_STABILIZED" 				: false,
+		"LP_WEIGHTING" 					: "STE",
+		"FORMANT_PRE_ENH_METHOD" 		: "NONE",
+		"FORMANT_PRE_ENH_COEFF" 		: 0.5,
+		"FORMANT_PRE_ENH_LPC_DELTA" 	: 20.0
+	},
+	"Select parameters to be extracted":
+	{
+		"EXTRACT_F0" 					: true,
+		"EXTRACT_GAIN" 					: true,
+		"EXTRACT_LSF" 					: true,
+		"EXTRACT_LSFSOURCE" 			: true,
+		"EXTRACT_HNR" 					: true,
+		"EXTRACT_HARMONICS" 			: false,
+		"EXTRACT_H1H2" 					: false,
+		"EXTRACT_NAQ" 					: false,
+		"EXTRACT_WAVEFORM" 				: false,
+		"EXTRACT_INFOFILE" 				: true,
+		"EXTRACT_PULSELIB" 				: true,
+		"EXTRACT_FFT_SPECTRA" 			: false,
+		"EXTRACT_SOURCE" 				: false
+	}
+}
