@@ -1,3 +1,13 @@
+/**************************************************************************
+
+Copyright	: AILifeNet
+Author		: Zhang,Huangbin
+Email		: zhanghuangbin01@gmail.com
+Date		: 2016-09-16
+Description 	: provide a class to process Json.
+
+**************************************************************************/
+
 #pragma once
 #include <deque>
 #include <string>
