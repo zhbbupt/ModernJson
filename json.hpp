@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <type_traits>
 #include <unordered_map>
+#include <cmath>
 namespace conf
 {
 	namespace json
@@ -53,6 +54,7 @@ namespace conf
 			typename Container::const_iterator begin() const { return object ? object->begin() : typename Container::iterator(); }
 			typename Container::const_iterator end() const { return object ? object->end() : typename Container::iterator(); }
 		};
+
 		class Json
 		{
 		public:
@@ -330,7 +332,7 @@ namespace conf
 				return this->_json_value.Dict->operator[](key);
 			}
 
-			Json& at(const std::string &key)
+			Json& at(const std::string &key) const
 			{
 				if (this->_json_type == JSON_TYPE::JSON_DICT)
 				{
@@ -347,10 +349,11 @@ namespace conf
 				{
 					std::cerr << "Json is not a dict" << std::endl;
 				}
-				return std::move(Json());
+				Json tmp;
+				return tmp;
 			}
 
-			Json& at(int32_t index) 
+			Json& at(int32_t index) const
 			{
 				if (this->_json_type == JSON_TYPE::JSON_LIST)
 				{
@@ -367,7 +370,8 @@ namespace conf
 				{
 					std::cerr << "Json is not a list" << std::endl;
 				}
-				return std::move(Json());
+				Json tmp;
+				return tmp;
 			}
 
 			int size() const
@@ -590,7 +594,7 @@ namespace conf
 				return "";
 			}
 
-			bool dumpToFile(const std::string& file_path,const int8_t& mode = std::ios::app) const
+			bool dumpToFile(const std::string& file_path, const std::ios_base::openmode& mode = std::ios::app) const
 			{
 				std::fstream json_file;
 				json_file.open(file_path, mode);
@@ -993,4 +997,3 @@ namespace conf
 		}
 	}
 }
-

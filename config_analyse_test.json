@@ -1,5 +1,5 @@
 {
-	"Common parameters":
+	"Common_Parameters":
 	{
 		"SAMPLING_FREQUENCY"			: 16000,
 		"FRAME_LENGTH"					: 25.0,
@@ -18,21 +18,21 @@
 		"LOG_F0" 						: false,
 		"DATA_FORMAT" 					: "ASCII"
 	},
-	"Noise reduction":
+	"Noise_Reduction":
 	{
 		"NOISE_REDUCTION_ANALYSIS" 		: false,
 		"NOISE_REDUCTION_SYNTHESIS"	 	: false,
 		"NOISE_REDUCTION_LIMIT_DB" 		: 2.0,
 		"NOISE_REDUCTION_DB" 			: 30.0
 	},
-	"General parameters":
+	"General_Parameters":
 	{
 		"PITCH_SYNCHRONOUS_ANALYSIS"	: false,
 		"INVERT_SIGNAL"					: false,
 		"HP_FILTERING" 					: true,
 		"HPFILTER_FILENAME" 			: "../cfg/hp_16khz"
 	},
-	"Parameters for F0 estimation":
+	"Parameters_for_F0_Estimation":
 	{
 		"F0_MIN" 						: 50.0,
 		"F0_MAX" 						: 300.0,
@@ -44,7 +44,7 @@
 		"USE_EXTERNAL_F0" 				: false,
 		"EXTERNAL_F0_FILENAME" 			: "wavs/filename.F0"
 	},
-	"Parameters for extracting pulse libraries":
+	"Parameters_for_Extracting_Pulse_Libraries":
 	{
 		"MAX_NUMBER_OF_PULSES" 			: 10000,
 		"PULSEMAXLEN" 					: 45.0,
@@ -54,7 +54,7 @@
 		"EXTRACT_ONLY_UNIQUE_PULSES" 	: false,
 		"EXTRACT_ONE_PULSE_PER_FRAME" 	: false
 	},
-	"Parameters for spectral modeling":
+	"Parameters_for_Spectral_Modeling":
 	{
 		"USE_IAIF" 						: true,
 		"LPC_ORDER_GL_IAIF" 			: 8,
@@ -66,7 +66,7 @@
 		"FORMANT_PRE_ENH_COEFF" 		: 0.5,
 		"FORMANT_PRE_ENH_LPC_DELTA" 	: 20.0
 	},
-	"Select parameters to be extracted":
+	"Select_Parameters_to_be_Extracted":
 	{
 		"EXTRACT_F0" 					: true,
 		"EXTRACT_GAIN" 					: true,

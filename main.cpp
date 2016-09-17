@@ -43,6 +43,8 @@ int main(int argc, char** argv)
 	Json jf = Json::loadJsonFile("config_analyse_test.json");
 	cout << jf << endl;
 
+	cout << jf["Common parameters"]["SAMPLING_FREQUENCY"] << endl;
+
 	jf.dumpToFile("test_out.json");
 
 	//iterator
